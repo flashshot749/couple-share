@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>💕 我们的专属空间</title>
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 自定义 Tailwind 配色 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            love: {
+              50: '#fef7f7',
+              100: '#fce8e8',
+              200: '#f9d5d5',
+              300: '#f2b5b5',
+              400: '#e88a8a',
+              500: '#d46363',
+              600: '#c44747',
+              700: '#a43535',
+              800: '#882f2f',
+              900: '#722c2c',
+            },
+            rose: {
+              50: '#fdf2f4',
+              100: '#fce7ea',
+              200: '#f9d0d8',
+              300: '#f4a9b8',
+              400: '#ed7a94',
+              500: '#e04d71',
+              600: '#cc335b',
+              700: '#ab244a',
+              800: '#8f2142',
+              900: '#78203e',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <!-- 自定义 CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-love-50 min-h-screen">
+
+  <!-- ============================================================ -->
+  <!-- 登录页面 -->
+  <!-- ============================================================ -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <!-- Logo & 标题 -->
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4 animate-bounce-slow">💕</div>
+        <h1 class="text-2xl font-bold text-love-700">我们的专属空间</h1>
+        <p class="text-love-400 text-sm mt-2">双人记账 · 共享日历 · 每日情话</p>
+      </div>
+
+      <!-- 登录卡片 -->
+      <div class="bg-white rounded-3xl shadow-lg p-8">
+        <h2 class="text-lg font-semibold text-gray-700 text-center mb-6">👫 专属登录</h2>
+        <form id="login-form" onsubmit="return false;">
+          <!-- 用户名 -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 mb-1">账号</label>
+            <input
+              type="text"
+              id="login-username"
+              placeholder="请输入你的专属账号"
+              class="w-full px-4 py-3 rounded-xl border border-love-200 bg-love-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-transparent transition-all"
+              autocomplete="username"
+            >
+          </div>
+          <!-- 密码 -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-600 mb-1">密码</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="请输入登录密码"
+              class="w-full px-4 py-3 rounded-xl border border-love-200 bg-love-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-transparent transition-all"
+              autocomplete="current-password"
+            >
+          </div>
+          <!-- 登录按钮 -->
+          <button
+            type="submit"
+            id="login-btn"
+            onclick="Auth.login()"
+            class="w-full py-3 bg-gradient-to-r from-love-400 to-rose-400 text-white font-semibold rounded-xl hover:from-love-500 hover:to-rose-500 transition-all transform active:scale-95 shadow-md"
+          >
+            进入我们的空间
+          </button>
+        </form>
+        <!-- 错误提示 -->
+        <p id="login-error" class="text-red-400 text-sm text-center mt-4 hidden"></p>
+        <!-- 提示 -->
+        <p class="text-gray-400 text-xs text-center mt-4">
+          🔒 仅限两人专属使用，无注册入口
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 主应用页面（登录后显示） -->
+  <!-- ============================================================ -->
+  <div id="app-screen" class="hidden pb-20">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-love-100 shadow-sm">
+      <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💕</span>
+          <span id="header-greeting" class="font-semibold text-gray-700 text-sm"></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="showSettingsModal()" class="text-gray-400 hover:text-love-500 transition-colors text-lg" title="设置">⚙️</button>
+          <button onclick="Auth.logout()" class="text-gray-400 hover:text-red-400 transition-colors text-sm" title="退出">退出</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 页面内容区 -->
+    <main class="max-w-lg mx-auto px-4 pt-4">
+
+      <!-- ============================================================ -->
+      <!-- 首页面板 -->
+      <!-- ============================================================ -->
+      <section id="page-home">
+
+        <!-- 每日情话卡片 -->
+        <div class="love-quote-card bg-gradient-to-br from-love-100 via-white to-rose-50 rounded-2xl p-5 mb-4 shadow-sm border border-love-100">
+          <div class="flex items-start gap-2 mb-2">
+            <span class="text-lg">💌</span>
+            <span class="text-xs text-love-400 font-medium">每日恋爱甜句</span>
+          </div>
+          <p id="daily-quote-text" class="text-gray-700 text-base leading-relaxed italic">加载中...</p>
+          <p id="daily-quote-author" class="text-love-400 text-xs text-right mt-2"></p>
+          <button onclick="refreshQuote()" class="mt-2 text-xs text-love-400 hover:text-love-600 transition-colors">🔄 换一句</button>
+        </div>
+
+        <!-- 今日待办板块（首页最醒目位置） -->
+        <div class="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-love-100">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-gray-700 flex items-center gap-2">
+              <span>📋</span> 今日待办
+            </h2>
+            <span id="today-date-display" class="text-xs text-gray-400"></span>
+          </div>
+          <div id="today-todos-list" class="space-y-2">
+            <p class="text-gray-400 text-sm text-center py-4">加载中...</p>
+          </div>
+          <!-- 快速添加待办 -->
+          <div class="mt-4 flex gap-2">
+            <input
+              type="text"
+              id="quick-todo-input"
+              placeholder="快速添加今日待办..."
+              class="flex-1 px-3 py-2 rounded-xl border border-love-200 bg-love-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+            >
+            <button
+              onclick="Todos.addQuickTodo()"
+              class="px-4 py-2 bg-love-400 text-white text-sm rounded-xl hover:bg-love-500 transition-colors active:scale-95"
+            >
+              添加
+            </button>
+          </div>
+        </div>
+
+        <!-- 今日收支概览 -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <!-- 我的今日 -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+            <h3 class="text-xs text-gray-400 mb-2">👤 我的今日</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="my-today-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="my-today-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+          </div>
+          <!-- 两人合计今日 -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+            <h3 class="text-xs text-gray-400 mb-2">💑 两人今日</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="all-today-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="all-today-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 月度统计 -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+            <h3 class="text-xs text-gray-400 mb-2">📅 我的本月</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="my-month-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="my-month-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+            <h3 class="text-xs text-gray-400 mb-2">💑 两人本月</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="all-month-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="all-month-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 年度统计 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-love-100 mb-4">
+          <h3 class="text-xs text-gray-400 mb-2">📊 年度总览</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-400 mb-1">👤 我的全年</p>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="my-year-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="my-year-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-1">💑 两人全年</p>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">支出</span>
+                <span id="all-year-expense" class="text-red-400 font-semibold">¥0</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">收入</span>
+                <span id="all-year-income" class="text-green-500 font-semibold">¥0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 记账面板 -->
+      <!-- ============================================================ -->
+      <section id="page-bills" class="hidden">
+        <!-- 新增账单按钮 -->
+        <button
+          onclick="Bills.showAddModal()"
+          class="w-full py-3 bg-gradient-to-r from-love-400 to-rose-400 text-white font-semibold rounded-xl hover:from-love-500 hover:to-rose-500 transition-all mb-4 shadow-md active:scale-95"
+        >
+          ✏️ 记一笔
+        </button>
+
+        <!-- 月度筛选 -->
+        <div class="flex items-center gap-2 mb-4">
+          <label class="text-sm text-gray-500">📅 筛选：</label>
+          <input
+            type="month"
+            id="bill-month-filter"
+            onchange="Bills.loadBills()"
+            class="px-3 py-2 rounded-xl border border-love-200 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+          >
+          <button
+            onclick="document.getElementById('bill-month-filter').value=''; Bills.loadBills();"
+            class="text-xs text-love-400 hover:text-love-600 transition-colors"
+          >
+            查看全部
+          </button>
+        </div>
+
+        <!-- 月度统计小条 -->
+        <div id="bills-month-stats" class="bg-white rounded-xl p-3 mb-4 shadow-sm border border-love-100 flex justify-around text-xs">
+          <span class="text-gray-400">加载中...</span>
+        </div>
+
+        <!-- 账单列表 -->
+        <div id="bills-list" class="space-y-2">
+          <p class="text-gray-400 text-sm text-center py-8">加载中...</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 日历面板 -->
+      <!-- ============================================================ -->
+      <section id="page-calendar" class="hidden">
+        <!-- 日历组件（由 JS 动态渲染） -->
+        <div id="calendar-container" class="bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+          <!-- 日历头部 -->
+          <div class="flex items-center justify-between mb-4">
+            <button onclick="Calendar.prevMonth()" class="w-8 h-8 rounded-full bg-love-50 text-love-500 flex items-center justify-center hover:bg-love-100 transition-colors">◀</button>
+            <h3 id="calendar-month-title" class="font-semibold text-gray-700"></h3>
+            <button onclick="Calendar.nextMonth()" class="w-8 h-8 rounded-full bg-love-50 text-love-500 flex items-center justify-center hover:bg-love-100 transition-colors">▶</button>
+          </div>
+          <!-- 星期头 -->
+          <div class="grid grid-cols-7 mb-2">
+            <span class="text-center text-xs text-gray-400 py-1">日</span>
+            <span class="text-center text-xs text-gray-400 py-1">一</span>
+            <span class="text-center text-xs text-gray-400 py-1">二</span>
+            <span class="text-center text-xs text-gray-400 py-1">三</span>
+            <span class="text-center text-xs text-gray-400 py-1">四</span>
+            <span class="text-center text-xs text-gray-400 py-1">五</span>
+            <span class="text-center text-xs text-gray-400 py-1">六</span>
+          </div>
+          <!-- 日期格子 -->
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+        </div>
+
+        <!-- 选中日期的待办 -->
+        <div class="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-love-100">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-gray-700">
+              📋 <span id="calendar-selected-date-label">今日</span> 待办
+            </h3>
+            <span id="calendar-todo-count" class="text-xs text-gray-400"></span>
+          </div>
+          <div id="calendar-todos-list" class="space-y-2 mb-4">
+            <p class="text-gray-400 text-sm text-center py-4">点击日期查看待办</p>
+          </div>
+          <!-- 添加待办 -->
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="calendar-todo-input"
+              placeholder="添加待办事项..."
+              class="flex-1 px-3 py-2 rounded-xl border border-love-200 bg-love-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+            >
+            <button
+              onclick="Calendar.addTodo()"
+              class="px-4 py-2 bg-love-400 text-white text-sm rounded-xl hover:bg-love-500 transition-colors active:scale-95"
+            >
+              添加
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- 底部导航栏（移动端优先，固定在底部） -->
+    <!-- ============================================================ -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-love-100 z-40 shadow-lg">
+      <div class="max-w-lg mx-auto flex justify-around py-2">
+        <button
+          onclick="switchPage('home')"
+          id="nav-home"
+          class="nav-btn flex flex-col items-center px-4 py-1 rounded-xl transition-colors"
+        >
+          <span class="text-xl">🏠</span>
+          <span class="text-xs mt-0.5 text-love-500 font-semibold">首页</span>
+        </button>
+        <button
+          onclick="switchPage('bills')"
+          id="nav-bills"
+          class="nav-btn flex flex-col items-center px-4 py-1 rounded-xl transition-colors text-gray-400"
+        >
+          <span class="text-xl">💰</span>
+          <span class="text-xs mt-0.5">记账</span>
+        </button>
+        <button
+          onclick="switchPage('calendar')"
+          id="nav-calendar"
+          class="nav-btn flex flex-col items-center px-4 py-1 rounded-xl transition-colors text-gray-400"
+        >
+          <span class="text-xl">📅</span>
+          <span class="text-xs mt-0.5">日历</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 记账弹窗（新增/编辑账单） -->
+  <!-- ============================================================ -->
+  <div id="bill-modal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-end sm:items-center justify-center" onclick="if(event.target===this) Bills.closeAddModal()">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 shadow-xl animate-slide-up">
+      <h3 id="bill-modal-title" class="text-lg font-semibold text-gray-700 mb-4">✏️ 记一笔</h3>
+      <form onsubmit="return false;">
+        <!-- 类型选择 -->
+        <div class="flex gap-3 mb-4">
+          <button
+            type="button"
+            id="bill-type-expense"
+            onclick="Bills.selectType('expense')"
+            class="flex-1 py-3 rounded-xl border-2 border-love-300 bg-love-50 text-love-600 font-semibold transition-all"
+          >
+            💸 支出
+          </button>
+          <button
+            type="button"
+            id="bill-type-income"
+            onclick="Bills.selectType('income')"
+            class="flex-1 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-500 transition-all"
+          >
+            💰 收入
+          </button>
+        </div>
+        <!-- 金额 -->
+        <div class="mb-4">
+          <label class="block text-sm text-gray-500 mb-1">金额 ¥</label>
+          <input
+            type="number"
+            id="bill-amount"
+            step="0.01"
+            min="0.01"
+            placeholder="0.00"
+            class="w-full px-4 py-3 rounded-xl border border-love-200 bg-love-50 text-gray-700 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-love-300"
+          >
+        </div>
+        <!-- 事由 -->
+        <div class="mb-4">
+          <label class="block text-sm text-gray-500 mb-1">消费事由</label>
+          <input
+            type="text"
+            id="bill-description"
+            placeholder="比如：午餐、电影票..."
+            class="w-full px-4 py-3 rounded-xl border border-love-200 bg-love-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+          >
+        </div>
+        <!-- 日期 -->
+        <div class="mb-6">
+          <label class="block text-sm text-gray-500 mb-1">日期</label>
+          <input
+            type="date"
+            id="bill-date"
+            class="w-full px-4 py-3 rounded-xl border border-love-200 bg-love-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+          >
+        </div>
+        <!-- 按钮 -->
+        <div class="flex gap-3">
+          <button
+            type="button"
+            onclick="Bills.closeAddModal()"
+            class="flex-1 py-3 rounded-xl border border-gray-200 text-gray-500 font-medium hover:bg-gray-50 transition-colors"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            id="bill-submit-btn"
+            onclick="Bills.submitBill()"
+            class="flex-1 py-3 rounded-xl bg-gradient-to-r from-love-400 to-rose-400 text-white font-semibold hover:from-love-500 hover:to-rose-500 transition-all"
+          >
+            保存
+          </button>
+        </div>
+      </form>
+      <!-- 删除按钮（仅编辑时显示） -->
+      <button
+        id="bill-delete-btn"
+        onclick="Bills.deleteCurrentBill()"
+        class="hidden w-full mt-3 py-2 text-red-400 text-sm hover:text-red-600 transition-colors"
+      >
+        🗑 删除此账单
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 设置弹窗 -->
+  <!-- ============================================================ -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-end sm:items-center justify-center" onclick="if(event.target===this) closeSettingsModal()">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 shadow-xl animate-slide-up">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4">⚙️ 设置</h3>
+
+      <!-- 修改密码 -->
+      <div class="mb-6">
+        <h4 class="text-sm font-medium text-gray-600 mb-3">🔑 修改密码</h4>
+        <input
+          type="password"
+          id="settings-old-password"
+          placeholder="原密码"
+          class="w-full px-4 py-2 mb-2 rounded-xl border border-love-200 bg-love-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+        >
+        <input
+          type="password"
+          id="settings-new-password"
+          placeholder="新密码（至少6位）"
+          class="w-full px-4 py-2 mb-2 rounded-xl border border-love-200 bg-love-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-love-300"
+        >
+        <button
+          onclick="changePassword()"
+          class="w-full py-2 bg-love-400 text-white text-sm rounded-xl hover:bg-love-500 transition-colors"
+        >
+          确认修改
+        </button>
+        <p id="settings-password-msg" class="text-xs text-center mt-2 hidden"></p>
+      </div>
+
+      <!-- 账号信息 -->
+      <div class="border-t border-love-100 pt-4">
+        <p class="text-xs text-gray-400 text-center">
+          👫 专属双人空间 · 所有数据实时同步
+        </p>
+        <p class="text-xs text-gray-300 text-center mt-1">
+          登录账号：哞哞 / 喵喵
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm px-5 py-3 rounded-2xl shadow-lg hidden transition-all opacity-0">
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- JavaScript 模块 -->
+  <!-- ============================================================ -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/bills.js"></script>
+  <script src="js/todos.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "couple-share",
+  "version": "1.0.0",
+  "description": "情侣双人专属记账共享网页 - 双人记账 + 共享日历待办 + 每日情话",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sql.js": "^1.10.2",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3"
+  }
+}
