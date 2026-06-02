@@ -179,12 +179,16 @@ function sbQuery(table) {
     insert: (obj, opts) => { m='POST'; body=JSON.stringify(Array.isArray(obj)?obj:(opts?.default??true?[obj]:obj)); return chain; },
     update: (obj) => { m='PATCH'; body=JSON.stringify(obj); return chain; },
     delete: () => { m='DELETE'; return chain; },
-    then: async (resolve) => {
-      const u = url + (params.length ? '?' + params.join('&') : '');
-      const res = await sbReq(u, { method: m, body });
-      if (m==='DELETE') { resolve(res.ok); return; }
-      const data = await res.json();
-      resolve(isSingle ? { data: data[0]||null } : { data });
+    then: (resolve, reject) => {
+      (async () => {
+        try {
+          const u = url + (params.length ? '?' + params.join('&') : '');
+          const res = await sbReq(u, { method: m, body });
+          if (m==='DELETE') { resolve(res.ok); return; }
+          const data = await res.json();
+          resolve(isSingle ? { data: data[0]||null } : { data });
+        } catch(e) { reject(e); }
+      })();
     }
   };
   return chain;
