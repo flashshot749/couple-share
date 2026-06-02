@@ -1,0 +1,5 @@
+CREATE TABLE users (id SERIAL PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, display_name TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE bills (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), type TEXT NOT NULL CHECK(type IN ('expense','income')), amount REAL NOT NULL CHECK(amount > 0), description TEXT NOT NULL DEFAULT '', bill_date DATE NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE todos (id SERIAL PRIMARY KEY, description TEXT NOT NULL, todo_date DATE NOT NULL, completed INTEGER DEFAULT 0, created_by INTEGER NOT NULL REFERENCES users(id), completed_by INTEGER REFERENCES users(id), created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE love_quotes (id SERIAL PRIMARY KEY, quote TEXT NOT NULL, author TEXT DEFAULT '', created_at TIMESTAMPTZ DEFAULT NOW());
+INSERT INTO users (username, password_hash, display_name) VALUES ('哞哞', '48818c6e6eb2ba468317d76accf24e92dd47e6c09c7db349356fad01d834015e', '哞哞 ♀'), ('喵喵', '48818c6e6eb2ba468317d76accf24e92dd47e6c09c7db349356fad01d834015e', '喵喵 ♂');

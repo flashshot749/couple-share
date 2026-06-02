@@ -1,0 +1,195 @@
+/**
+ * style.css - 情侣双人记账系统自定义样式
+ * 移动端优先，温柔浅色系主题
+ */
+
+/* ============================================================ */
+/* 全局动画 */
+/* ============================================================ */
+
+/* 缓慢弹跳动画（用于Logo心形） */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+/* 底部滑入动画（用于弹窗） */
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* 淡入动画 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* ============================================================ */
+/* Toast 提示 */
+/* ============================================================ */
+
+#toast.show {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================ */
+/* 底部导航按钮高亮 */
+/* ============================================================ */
+
+.nav-btn.active {
+  color: #d46363;
+}
+
+/* ============================================================ */
+/* 日历当日高亮 */
+/* ============================================================ */
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: #4a4a4a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background-color: #fce8e8;
+}
+
+.calendar-day.today {
+  background-color: #fce8e8;
+  color: #d46363;
+  font-weight: 700;
+}
+
+.calendar-day.selected {
+  background-color: #d46363;
+  color: white;
+  font-weight: 700;
+}
+
+.calendar-day.other-month {
+  color: #d0d0d0;
+  cursor: default;
+}
+
+.calendar-day.other-month:hover {
+  background-color: transparent;
+}
+
+/* 有待办事项的日期小圆点 */
+.calendar-day.has-todos::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #d46363;
+}
+
+.calendar-day.selected.has-todos::after {
+  background-color: white;
+}
+
+/* ============================================================ */
+/* 待办完成状态样式 */
+/* ============================================================ */
+
+.todo-completed .todo-text {
+  text-decoration: line-through;
+  color: #c0c0c0 !important;
+}
+
+.todo-completed {
+  opacity: 0.6;
+}
+
+/* ============================================================ */
+/* 情话卡片渐变背景 */
+/* ============================================================ */
+
+.love-quote-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.love-quote-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(244, 169, 184, 0.15);
+  pointer-events: none;
+}
+
+/* ============================================================ */
+/* 滚动条美化 */
+/* ============================================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f2b5b5;
+  border-radius: 4px;
+}
+
+/* ============================================================ */
+/* 移动端点击高亮去除 */
+/* ============================================================ */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================ */
+/* 输入框移动端字体缩放防止 */
+/* ============================================================ */
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="month"] {
+  font-size: 16px; /* 防止 iOS 自动缩放 */
+}
+
+/* ============================================================ */
+/* 响应式调整 */
+/* ============================================================ */
+
+@media (min-width: 640px) {
+  /* 桌面端弹窗居中显示 */
+  #bill-modal > div,
+  #settings-modal > div {
+    border-radius: 1.5rem;
+  }
+}
