@@ -6,7 +6,7 @@
   <title>💕 我们的专属空间</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={theme:{extend:{colors:{love:{50:'#fef7f7',100:'#fce8e8',200:'#f9d5d5',300:'#f2b5b5',400:'#e88a8a',500:'#d46363',600:'#c44747',700:'#a43535'},rose:{50:'#fdf2f4',100:'#fce7ea',200:'#f9d0d8',300:'#f4a9b8',400:'#ed7a94',500:'#e04d71',600:'#cc335b'}}}}}</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- 用原生 fetch 直连 Supabase，不依赖第三方 CDN -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-love-50 min-h-screen">
@@ -158,8 +158,38 @@
 
 <!-- ==================== 全部 JS 逻辑 ==================== -->
 <script>
-// ========== Supabase 初始化 ==========
-const SB = supabase.createClient('https://znauqufdbmrxplkqjesk.supabase.co', 'sb_publishable_v4dv4jq4F9EzfD09wBBrsw_jrPcyCAg');
+// ========== Supabase 轻量客户端（纯 fetch，不依赖 CDN） ==========
+const SB_URL = 'https://znauqufdbmrxplkqjesk.supabase.co/rest/v1';
+const SB_KEY = 'sb_publishable_v4dv4jq4F9EzfD09wBBrsw_jrPcyCAg';
+const SB_H = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+async function sbReq(url, opts={}) {
+  const res = await fetch(url, { headers: SB_H, ...opts });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message||'请求失败'); }
+  return res;
+}
+function sbQuery(table) {
+  let url = `${SB_URL}/${table}`, params = [], m = 'GET', body = null, isSingle = false;
+  const chain = {
+    select: (cols) => { params.push('select=' + (cols||'*')); return chain; },
+    eq: (k, v) => { params.push(`${k}=eq.${encodeURIComponent(v)}`); return chain; },
+    gte: (k, v) => { params.push(`${k}=gte.${encodeURIComponent(v)}`); return chain; },
+    lte: (k, v) => { params.push(`${k}=lte.${encodeURIComponent(v)}`); return chain; },
+    order: (col, opts) => { params.push(`order=${col}.${opts&&opts.ascending===false?'desc':'asc'}`); return chain; },
+    single: () => { isSingle = true; params.push('limit=1'); return chain; },
+    insert: (obj, opts) => { m='POST'; body=JSON.stringify(Array.isArray(obj)?obj:(opts?.default??true?[obj]:obj)); return chain; },
+    update: (obj) => { m='PATCH'; body=JSON.stringify(obj); return chain; },
+    delete: () => { m='DELETE'; return chain; },
+    then: async (resolve) => {
+      const u = url + (params.length ? '?' + params.join('&') : '');
+      const res = await sbReq(u, { method: m, body });
+      if (m==='DELETE') { resolve(res.ok); return; }
+      const data = await res.json();
+      resolve(isSingle ? { data: data[0]||null } : { data });
+    }
+  };
+  return chain;
+}
+const SB = { from: sbQuery };
 
 // ========== 全局状态 ==========
 let currentUser = null;
